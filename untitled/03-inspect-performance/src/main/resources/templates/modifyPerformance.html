@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>修改员工具体表现</title>
+<!--    <link rel="stylesheet" href="css/picnic.min.css">-->
+    <style type="text/css">
+        body{
+            background: url("img/tp.png") no-repeat center center fixed;
+            /*兼容浏览器版本*/
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(function (){
+            selectPByPid()
+            //给提交按钮添加单击事件
+            $("#subBtn").click(function (){
+                updatePerformance()
+            })
+            //当在页面上弹起键盘时触发事件
+            $(document).keyup(function (){
+                setAttendance()
+            })
+        })
+        //设置实际出勤天数的值
+        function setAttendance(){
+            // 全勤天数
+            var fullAttendance=$("#fullAttendance").val()
+            // 请假天数
+            var leavecount=$("#leavecount").val()
+            // 旷工天数
+            var absenteeism=$("#absenteeism").val()
+            //判断各个天数是否输入
+            if (fullAttendance.trim()!='' && leavecount.trim()!='' &&absenteeism.trim()!=''){
+                var s=parseInt(fullAttendance)-parseInt(leavecount)-parseInt(absenteeism)
+                // 如果值小于等于0都设置为0
+                if(s<=0){
+                    $("#attendance").val(0)
+                }else{
+                    $("#attendance").val(s)
+                }
+            }else {
+                $("#attendance").val("")
+            }
+        }
+
+        //页面加载完成后加载数据
+        function selectPByPid(){
+            var pid=[[${param.pid}]]
+            $.ajax({
+                url:"getPerformanceByPid",
+                type:"get",
+                data:"pid="+pid[0],
+                dataType:"json",
+                success:function (resp){
+                    $("#fullAttendance").val(resp.fullAttendance)
+                    $("#leavecount").val(resp.leavecount)
+                    $("#absenteeism").val(resp.absenteeism)
+                    $("#overtimeday").val(resp.overtimeday)
+                    $("#attendance").val(parseInt(resp.fullAttendance)-parseInt(resp.leavecount)-parseInt(resp.absenteeism))
+                    $("#performanceScore").val(resp.performanceScore)
+                    $("#piecework").val(resp.piecework)
+
+                }
+            })
+        }
+
+        //修改员工表现
+        function updatePerformance(){
+            // 工号
+            var pid=[[${param.pid}]]
+            // 请假天数
+            var leavecount=$("#leavecount").val()
+            // 旷工天数
+            var absenteeism=$("#absenteeism").val()
+            // 全勤天数
+            var fullAttendance=$("#fullAttendance").val()
+            // 绩效分数
+            var performanceScore=$("#performanceScore").val()
+            // 实际出勤天数
+            var attendance=$("#attendance").val()
+            // 计件数
+            var piecework=$("#piecework").val()
+            //加班天数
+            var overtimeday=$("#overtimeday").val()
+
+            var regExp=/^[1-9]*[1-9][0-9]*$/
+            var flag=regExp.test(leavecount)&&regExp.test(absenteeism)&&regExp.test(fullAttendance)&&regExp.test(overtimeday)&&regExp.test(piecework)&&regExp.test(performanceScore)&&regExp.test(attendance)
+            if (parseInt(leavecount)==0||parseInt(absenteeism)==0||parseInt(performanceScore)==0||parseInt(attendance)==0||parseInt(piecework)==0||parseInt(overtimeday)==0){
+                flag=true
+            }
+            if (flag){
+                // 如果计件数为空，绩效分数不为空则提交按绩效分数提交
+                if(piecework.trim()==""&&performanceScore.trim()!=""){
+                    //如果绩效分数不是由正整数组成则清空文本框并提示
+                    if(regExp.test(performanceScore)||parseInt(performanceScore)==0){
+                        $.ajax({
+                            url:"updatePerformance",
+                            type:"post",
+                            data:{
+                                pid:pid[0],
+                                leavecount:leavecount,
+                                absenteeism:absenteeism,
+                                fullAttendance:fullAttendance,
+                                performanceScore:performanceScore,
+                                attendance:attendance,
+                                overtimeday:overtimeday
+                            },
+                            dataType:"json",
+                            success:function (resp){
+                                if (resp.code==1){
+                                    window.location.href="showperformance?eid="+[[${param.eid}]]+"&name="+[[${param.name}]]
+                                }else{
+                                    alert(resp.message)
+                                }
+                            }
+                        })
+                    }else{
+                        $("#performanceScore").val("")
+                        alert("请输入正整数")
+                    }
+                }else if(piecework.trim()!=""&&performanceScore.trim()==""){ //提交计件数
+                    //如果计件数不是由正整数组成则清空文本框并提示
+                    if(regExp.test(piecework)||parseInt(piecework)==0){
+                        $.ajax({
+                            url:"updatePerformance",
+                            type:"post",
+                            data:{
+                                pid:pid[0],
+                                leavecount:leavecount,
+                                absenteeism:absenteeism,
+                                fullAttendance:fullAttendance,
+                                piecework:piecework,
+                                attendance:attendance,
+                                overtimeday:overtimeday
+                            },
+                            dataType:"json",
+                            success:function (resp){
+                                if (resp.code==1){
+                                    window.location.href="showperformance?eid="+[[${param.eid}]]+"&name="+[[${param.name}]]
+                                }else{
+                                    alert(resp.message)
+                                }
+                            }
+                        })
+                    }else{
+                        $("#piecework").val("")
+                        alert("请输入正整数")
+                    }
+                }else{
+                    $("#performanceScore").val("")
+                    $("#piecework").val("")
+                    alert("绩效分数和计件数不能同时填写")
+                }
+            }else {
+                alert("请输入正整数")
+            }
+
+        }
+    </script>
+</head>
+<body>
+<div align="center">
+    <h1>修改员工具体表现情况</h1>
+    全勤天数：<input type="text" id="fullAttendance"><br>
+    请假天数：<input type="text" id="leavecount"><br>
+    旷工天数：<input type="text" id="absenteeism"><br>
+    加班天数: <input type="text" id="overtimeday"><br>
+    实际出勤天数：<input type="text" id="attendance" disabled><br>
+    绩效分数：<input type="text" id="performanceScore"><br>
+    计件数：<input type="text" id="piecework"><br>
+    <input type="button" value="提交" id="subBtn">
+</div>
+</body>
+</html>

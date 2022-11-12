@@ -1,0 +1,5 @@
+com\zw\api\openfeign\PerformanceFeign.class
+com\zw\api\openfeign\IndexFeign.class
+com\zw\api\openfeign\PayslipFeign.class
+com\zw\api\openfeign\WagesscaleFeign.class
+com\zw\api\openfeign\EmployeeFeign.class

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>修改工资标准</title>
+<!--    <link rel="stylesheet" href="css/picnic.min.css">-->
+    <style type="text/css">
+        body{
+            background: url("img/tp.png") no-repeat center center fixed;
+            /*兼容浏览器版本*/
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(function (){
+            getObj()
+            // 提交按钮单击事件
+            $("#submitBn").click(function () {
+                var jid=[[${param.jid}]]
+                //部门主管
+                var headofdepartment=$("#headofdepartment").val()
+                // 厂长
+                var director=$("#director").val()
+                // 组长
+                var leader=$("#leader").val()
+                // 普通员工
+                var employee=$("#employee").val()
+
+                $.ajax({
+                    url: "updateJobscale",
+                    type: "post",
+                    data: {
+                        jid:jid[0],
+                        headofdepartment:headofdepartment,
+                        director:director,
+                        leader:leader,
+                        employee,employee
+                    },
+                    success:function (resp){
+                        if (resp.code==1){
+                            window.location.href="toWagesscale"
+                        }
+                    }
+                })
+            })
+
+        /**
+         * 获取工资标准信息
+         */
+        function getObj(){
+            var jid=[[${param.jid}]]
+            $.ajax({
+                url:"getJobscaleByWid",
+                type:"get",
+                data:{
+                    jid:jid[0]
+                },
+                success:function (resp){
+                    $("#director").val(resp.director)
+                    $("#headofdepartment").val(resp.headofdepartment)
+                    $("#leader").val(resp.leader)
+                    $("#employee").val(resp.employee)
+                }
+            })
+        }})
+    </script>
+</head>
+<body>
+<div align="center">
+    <h1>修改各岗位工资第一级标准</h1>
+    厂长：<input type="text" id="director" /><br>
+    部门主管：<input type="text" id="headofdepartment" /><br>
+    车间主任/工段长/班组长：<input type="text" id="leader" /><br>
+    普通员工：<input type="text" id="employee" /><br>
+    <input type="button" id="submitBn" value="提交">
+</div>
+
+</body>
+</html>

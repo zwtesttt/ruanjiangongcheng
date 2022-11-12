@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>录入员工</title>
+<!--    <link rel="stylesheet" href="css/picnic.min.css">-->
+    <style type="text/css">
+        body{
+            background: url("img/tp.png") no-repeat center center fixed;
+            /*兼容浏览器版本*/
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $("#submitBt").click(function(){
+                var ename=$("#ename").val()
+                // 岗位
+                var position=$("#positionSen > option:selected").val()
+                // 绩效等级
+                var performanceLevel=$("#performanceLevel > option:selected").val()
+                // 联系方式
+                var contact=$("#contact").val()
+                // 身份证
+                var identityCard=$("#identityCard").val()
+                $.ajax(
+                    {
+                        url:"toRegistered",
+                        type: "post",
+                        data:{
+                            ename:ename,
+                            position:position,
+                            performanceLevel:performanceLevel,
+                            contact:contact,
+                            identityCard:identityCard
+                        },
+                        dataType:"json",
+                        success:function (resp){
+                            if(resp.code==1){
+                                //跳转员工统计页
+                                window.location.href="todetail"
+                            }else{
+                                alert(resp.message)
+                            }
+
+                        }
+                    })
+
+            })
+        })
+    </script>
+</head>
+<body>
+<div align="center">
+    <h1>录入员工</h1>
+    姓名:<input name="ename" id="ename" type="text"/><br>
+    联系方式:<input name="contact" id="contact" type="text"/><br>
+    身份证号:<input name="identityCard" id="identityCard" type="text"/><br>
+    <br>
+    岗位: <select  id="positionSen">
+    <option value="">请选择</option>
+    <option value="headofdepartment">部门主管</option>
+    <option value="director">厂长</option>
+    <option value="leader">车间主任</option>
+    <option value="leader">工段长</option>
+    <option value="leader">班组长</option>
+    <option value="employee">普通员工</option>
+</select>
+
+    绩效等级: <select  id="performanceLevel">
+    <option value="">请选择</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+</select>
+
+    <p></p>
+    <input type="button" id="submitBt" value="提交"/>
+</div>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--    <base th:href="${request.getScheme()}+'://'+${request.getServerName()}+':'"/>-->
+    <title>计算员工工资</title>
+<!--    <link rel="stylesheet" href="css/picnic.min.css">-->
+    <!--  It is a good idea to bundle all CSS in one file. The same with JS -->
+    <!--  JQUERY -->
+    <style type="text/css">
+
+        body{
+            background: url("img/tp.png") no-repeat center center fixed;
+            /*兼容浏览器版本*/
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+
+
+    <script type="text/javascript" th:inline="javascript">
+        $(function() {
+            var jobsale=queryJ() //查询岗位工资
+            var wagesale=queryWage() //查询工资标准
+            var lia=[]
+            queryE()
+
+            //导出工资按钮单击事件
+            $("#execPli").click(function (){
+                var checkeds=$("#bodyP2 input[type='checkbox']:checked")
+                if(checkeds.length==0){
+                    alert("请选择要导出的工资条")
+                    return;
+                }else {
+                    insertP(lia)//添加记录
+                    excertP()//导出excle文件
+
+                }
+            })
+
+            //计算工资按钮单击事件
+            $("#jisuanBtn").click(function (){
+                var checkeds=$("#bodyP input[type='checkbox']:checked")
+                var list=new Array()
+                var li=[]
+
+
+                $.each(checkeds,function (){
+                    list.push(this.value)
+                })
+                if (list.length==0){
+                    alert("请选择员工")
+                    return
+                }else{
+                    // 返回员工信息请求
+                    $.ajax({
+                        url:"getEmployeeList",
+                        type: "post",
+                        data: JSON.stringify(list),
+                        dataType:"json",
+                        contentType:"application/json",
+                        success:function (resp){
+                            $("#jisuanTable").empty()
+                            $("#jisuanTable").append("<thead><td>选择</td><td>姓名</td><td>岗位</td><td>基本工资</td><td>生活津贴</td><td>绩效/计件工资</td><td>加班工资</td><td>岗位工资</td><td>实发工资</td></thead>")
+                            $("#jisuanTable").append("<tbody id=\"bodyP2\"></tbody>")
+                            var activityhtml=""
+                            $.each(resp,function (i,o){
+                                var perm=queryPerm(o.eid) //查询员工具体表现
+                                //基本工资
+                                var basicsalary=parseInt(wagesale.data.basicsalary)/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                //生活津贴
+                                var allowance=parseInt(wagesale.data.allowance)/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                //岗位工资
+                                var jobsalary
+                                if(o.position=='headofdepartment'){
+                                    jobsalary=(parseInt(jobsale.data.headofdepartment)+(parseInt(o.performanceLevel)*300))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                }else if(o.position=='director'){
+                                    jobsalary=(parseInt(jobsale.data.director)+(parseInt(o.performanceLevel)*500))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                }else if(o.position=='leader'){
+                                    jobsalary=(parseInt(jobsale.data.leader)+(parseInt(o.performanceLevel)*150))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                }else if(o.position=='employee'){
+                                    jobsalary=(parseInt(jobsale.data.employee)+(parseInt(o.performanceLevel)*100))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                }
+
+                                //加班工资
+                                var overtimesalary=parseInt(wagesale.data.basicsalary)/parseInt(perm.fullAttendance)*parseInt(perm.overtimeday)
+                                //绩效|计件工资
+                                var performance
+                                //计件工资
+                                //var piecesalary
+                                if (perm.piecework==null){
+                                    if (parseInt(o.performanceScore)>90){
+                                        performance=parseInt(wagesale.data.performancesalary)*1
+                                    }else{
+                                        performance=parseInt(wagesale.data.performancesalary)*(parseInt(perm.performanceScore)*0.01)
+                                    }
+                                }else{
+                                    performance=parseInt(perm.piecework)*0.5
+
+                                }
+
+                                //应发工资
+                                var sale=basicsalary+allowance+jobsalary+overtimesalary+performance
+                                // 渲染表格
+                                activityhtml+="<tr>"
+                                activityhtml+="<td><input class='checkable' type=\"checkbox\" value=\""+o.eid+"\"/></td>"
+                                activityhtml+="<td>"+o.ename+"</td>"
+                                activityhtml+="<td>"+o.position+"</td>"
+                                activityhtml+="<td>"+parseInt(basicsalary)+"</td>"
+                                activityhtml+="<td>"+parseInt(allowance)+"</td>"
+                                activityhtml+="<td>"+parseInt(performance)+"</td>"
+                                activityhtml+="<td>"+parseInt(overtimesalary)+"</td>"
+                                activityhtml+="<td>"+parseInt(jobsalary)+"</td>"
+                                activityhtml+="<td>"+parseInt(sale)+"</td>"
+                                activityhtml+="</tr>"
+
+                                 //包装成对象
+                                 var obj={eid:o.eid,ename:o.ename,basicsalary:parseInt(basicsalary),allowance:parseInt(allowance),performance:parseInt(performance),overtimesalary:parseInt(overtimesalary),jobsalary:parseInt(jobsalary),salary:sale}
+                                 li.push(obj)
+
+                            })
+                            lia=li
+                            $("#bodyP2").html(activityhtml)
+
+
+                        }
+                    })
+                }
+
+            })
+        })
+
+        /**
+         * 删除工资单记录
+         */
+        function deleteP(){
+            var checkeds=$("#bodyP2 input[type='checkbox']:checked")
+            var ll=[]
+            if(checkeds.length==0){
+                return;
+            }else {
+                $.each(checkeds,function (){
+                    ll.push(this.value)
+                })
+                $.ajax({
+                    async:false,
+                    url:"deletePayslip",
+                    type: "delete",
+                    data: JSON.stringify(ll),
+                    dataType:"json",
+                    contentType:"application/json",
+                    success:function (resp){
+                        if (resp.code!=1){
+                            alert(resp.message)
+                        }
+
+                    }
+                })
+            }
+
+        }
+        /**
+         * 录入工资单记录
+         */
+        function insertP(plist){
+            $.ajax({
+                async:false,
+                url:"addPayslip",
+                type: "post",
+                data: JSON.stringify(plist),
+                dataType:"json",
+                contentType:"application/json",
+                success:function (resp){
+                    if (resp.code!=1){
+                        alert(resp.message)
+                    }
+
+                }
+            })
+        }
+        /**
+         * 导出excel文件
+         */
+        function excertP(){
+            //获取参数
+            //获取被选中的checkbox的value
+            var checkeds=$("#bodyP2 input[type='checkbox']:checked")
+            var ids=""
+            $.each(checkeds,function (){
+                ids+="ids="+this.value+"&"
+            })
+            ids=ids.substr(0,ids.length-1)
+            window.location.href="downloadPayslip?"+ids
+        }
+        // 加载员工列表
+        function queryE(){
+            $.ajax(
+                {
+                    url:"getEmployees",
+                    type:"get",
+                    dataType:"json",
+                    success:function (resp){
+                        $("#detailTable").empty()
+                        $("#detailTable").append("<thead><td>选择</td><td>序号</td><td>姓名</td><td>岗位</td><td>绩效等级</td><td>联系方式</td></thead>")
+                        $("#detailTable").append("<tbody id=\"bodyP\"></tbody>")
+                        var activityhtml=""
+                        $.each(resp,function (i,p){
+                            activityhtml+="<tr>"
+                            activityhtml+="<td><input type=\"checkbox\" value=\""+p.eid+"\"/></td>"
+                            activityhtml+="<td>"+(i+1)+"</td>"
+                            activityhtml+="<td>"+p.ename+"</td>"
+                            activityhtml+="<td>"+p.position+"</td>"
+                            activityhtml+="<td>"+p.performanceLevel+"</td>"
+                            activityhtml+="<td>"+p.contact+"</td>"
+                            activityhtml+="</tr>"
+                        })
+                        $("#bodyP").html(activityhtml)
+                    }
+                }
+            )
+        }
+
+        // 查询离当前时间最近的一条岗位工资标准
+        function queryJ(){
+            var a=''
+            // 发送获取最新岗位工资请求
+            $.ajax({
+                async:false,
+                url:"getNewJobscale",
+                type:"get",
+                success:function (resp1){
+                    if (resp1.code==1) {
+                        a=resp1
+                    }
+                }
+            })
+            return a
+        }
+
+        //查询工资标准
+        function queryWage(){
+            var a=''
+            // 发送获取最新工资标准请求
+            $.ajax({
+                async:false,
+                url:"getWagesscale",
+                type:"get",
+                success:function (resp){
+                    if (resp.code==1){
+                        a=resp
+                    }
+                }
+            })
+            return a
+
+        }
+        //查询员工具体表现
+        function queryPerm(eid){
+            var a=''
+            $.ajax({
+                async:false,
+                url:"selectPerformance",
+                type:"get",
+                data:{
+                    eid:eid
+                },
+                dataType:"json",
+                success:function (resp){
+                    if (resp!=null){
+                        a=resp
+                    }
+                }
+            })
+            return a
+        }
+    </script>
+</head>
+<body>
+
+<div align="center">
+    <h1>员工列表</h1>
+    <a href="/01-user-login/index">返回首页</a>
+
+    <table id="detailTable" border="5px">
+        <thead><td>选择</td><td>序号</td><td>姓名</td><td>岗位</td><td>绩效等级</td><td>联系方式</td></thead>
+        <tbody id="bodyP">
+
+        </tbody>
+
+    </table><br>
+    <button id="jisuanBtn" >计算所选员工工资</button>
+    <br>
+    <h1>员工工资条</h1>
+    <table id="jisuanTable" border="5px">
+        <thead><td>选择</td><td>姓名</td><td>岗位</td><td>基本工资</td><td>生活津贴</td><td>绩效/计件工资</td><td>加班工资</td><td>岗位工资</td><td>实发工资</td></thead>
+        <tbody id="bodyP2">
+
+        </tbody>
+
+    </table><br>
+    <button id="execPli" >导出工资条</button>
+</div>
+
+</body>
+</html>

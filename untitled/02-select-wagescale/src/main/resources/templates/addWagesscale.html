@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>创建各工资标准</title>
+<!--    <link rel="stylesheet" href="../css/picnic.min.css">-->
+    <style type="text/css">
+        body{
+            background: url("img/tp.png") no-repeat center center fixed;
+            /*兼容浏览器版本*/
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+    <script type="text/javascript">
+        $(function (){
+            // 给提交按钮添加单击事件
+            $("#submitBn").click(function (){
+                // 基本工资标准
+                var basicsalary=$("#basicsalary").val()
+                // 生活津贴标准
+                var allowance=$("#allowance").val()
+
+                // 绩效工资标准
+                var performancesalary=$("#performancesalary").val()
+
+                // 表单验证,判断参数是否全部由正整数组成
+                var regExp=/^[0-9]*[1-9][0-9]*$/
+                if (regExp.test(basicsalary)&&regExp.test(allowance)&&regExp.test(performancesalary)) {
+                    $.ajax({
+                        url:"addWagesscale",
+                        type:"post",
+                        data:{
+                            basicsalary:basicsalary,
+                            allowance:allowance,
+                            performancesalary:performancesalary
+                        },
+                        dataType:"json",
+                        success:function (resp){
+                            if (resp.code==1){
+                                window.location.href="toWagesscale"
+                            }else{
+                                alert(resp.message)
+                            }
+                        }
+                    })
+
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+    <div align="center">
+        <h1>创建工资标准</h1>
+        基本工资标准:<input type="text" id="basicsalary" /><br>
+        生活津贴标准:<input type="text" id="allowance" /><br>
+        绩效工资标准:<input type="text" id="performancesalary" /><br>
+
+        <input type="button" id="submitBn" value="提交">
+    </div>
+
+</body>
+</html>

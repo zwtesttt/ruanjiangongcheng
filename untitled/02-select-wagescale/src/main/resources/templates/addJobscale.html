@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>创建各工资标准</title>
+<!--  <link rel="stylesheet" href="../css/picnic.min.css">-->
+  <style type="text/css">
+    body{
+      background: url("img/tp.png") no-repeat center center fixed;
+      /*兼容浏览器版本*/
+      -webkit-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+  </style>
+  <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+  <script type="text/javascript">
+    $(function (){
+      // 给提交按钮添加单击事件
+      $("#submitBn").click(function (){
+
+        //部门主管
+        var headofdepartment=$("#headofdepartment").val()
+        // 厂长
+        var director=$("#director").val()
+        // 组长
+        var leader=$("#leader").val()
+        // 普通员工
+        var employee=$("#employee").val()
+
+
+        // 表单验证,判断参数是否全部由正整数组成
+        var regExp=/^[0-9]*[1-9][0-9]*$/
+        if (regExp.test(headofdepartment)&&regExp.test(director)&&regExp.test(leader)&& regExp.test(employee)) {
+          $.ajax({
+            url:"addJobscale",
+            type: "post",
+            data:{
+              headofdepartment:headofdepartment,
+              director:director,
+              leader:leader,
+              employee,employee
+            },
+            dataType: "json",
+            success:function (resp){
+              if (resp.code!=1){
+                alert(resp.message)
+              }else {
+                window.location.href="toWagesscale"
+              }
+            }
+          })
+        }
+      })
+    })
+  </script>
+</head>
+<body>
+<div align="center">
+  <h1>创建各岗位工资第一级标准</h1>
+  厂长：<input type="text" id="director" /><br>
+  部门主管：<input type="text" id="headofdepartment" /><br>
+  车间主任/工段长/班组长：<input type="text" id="leader" /><br>
+  普通员工：<input type="text" id="employee" /><br>
+  <input type="button" id="submitBn" value="提交">
+</div>
+</body>
+</html>

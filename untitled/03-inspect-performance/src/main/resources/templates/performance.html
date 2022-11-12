@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+<!--    <base th:href="${request.getScheme()}+'://'+${request.getServerName()}+':'"/>-->
+    <title>员工具体表现情况</title>
+    <link rel="stylesheet" href="css/picnic.min.css">
+    <!--  It is a good idea to bundle all CSS in one file. The same with JS -->
+
+    <style type="text/css">
+        body{
+            background: url("img/tp.png") no-repeat center center fixed;
+            /*兼容浏览器版本*/
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+    </style>
+    <!--  JQUERY -->
+    <script type="text/javascript" src="js/jquery-3.6.0.js"></script>
+
+
+    <script type="text/javascript" th:inline="javascript">
+        $(function() {
+            queryE()
+        })
+
+        function queryE(){
+            $.ajax(
+                {
+                    url:"getEmployees",
+                    type:"get",
+                    dataType:"json",
+                    success:function (resp){
+                        $("#detailTable").empty()
+                        $("#detailTable").append("<thead><td>序号</td><td>姓名</td><td>岗位</td><td>绩效等级</td><td>联系方式</td><td>操作</td></thead>")
+                        $.each(resp,function (i,p){
+                            $("#detailTable").append("<tr><td>"+(i+1)+"</td><td>"+p.ename+"</td><td>"+p.position+"</td><td>"+p.performanceLevel+"</td><td>"+p.contact+"</td><td><a href='showperformance?eid="+p.eid+"&name="+p.ename+"'>员工表现情况</a></td></tr>")
+                        })
+                    }
+                }
+            )
+        }
+    </script>
+</head>
+<body>
+
+<div align="center">
+    <h1>员工列表</h1>
+    <a href="/01-user-login/index">返回首页</a>
+    <table id="detailTable" border="5px">
+        <thead><td>序号</td><td>姓名</td><td>岗位</td><td>绩效等级</td><td>联系方式</td><td>身份证号</td><td>操作</td></thead>
+
+
+    </table><br>
+
+
+</div>
+
+</body>
+</html>

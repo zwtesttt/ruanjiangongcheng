@@ -1,0 +1,21 @@
+server:
+  port: 8082
+spring:
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
+  application:
+    name: 02-wagesscale
+  cloud:
+    nacos:
+      server-addr:  23.224.102.17:8848 #往该地址注册
+      username: nacos #登录nacos的用户名
+      password: nacos  #登录nacos的密码
+      discovery:
+        heart-beat-timeout: 10000
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://23.224.102.17:3306/payroll?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 888888

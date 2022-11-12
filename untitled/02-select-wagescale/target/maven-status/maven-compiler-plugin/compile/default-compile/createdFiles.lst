@@ -1,0 +1,8 @@
+com\zw\wagescale\service\WagesscaleServiceImpl.class
+com\zw\wagescale\service\WagesscaleService.class
+com\zw\wagescale\WagescaleAppliction.class
+com\zw\wagescale\mapper\WagesscaleMapper.class
+com\zw\wagescale\service\JobscaleService.class
+com\zw\wagescale\mapper\JobscaleMapper.class
+com\zw\wagescale\controller\WagesscaleController.class
+com\zw\wagescale\service\JobscaleServiceImpl.class
