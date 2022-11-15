@@ -89,8 +89,8 @@
             var overtimeday=$("#overtimeday").val()
 
             var regExp=/^[1-9]*[1-9][0-9]*$/
-            var flag=regExp.test(leavecount)&&regExp.test(absenteeism)&&regExp.test(fullAttendance)&&regExp.test(overtimeday)&&regExp.test(piecework)&&regExp.test(performanceScore)&&regExp.test(attendance)
-            if (parseInt(leavecount)==0||parseInt(absenteeism)==0||parseInt(performanceScore)==0||parseInt(attendance)==0||parseInt(piecework)==0||parseInt(overtimeday)==0){
+            var flag=regExp.test(leavecount)&&regExp.test(absenteeism)&&regExp.test(fullAttendance)&&regExp.test(overtimeday)&&regExp.test(attendance)&&regExp.test(overtimeday)
+            if (flag==true&&parseInt(leavecount)==0||parseInt(absenteeism)==0||parseInt(attendance)==0||parseInt(overtimeday)==0){
                 flag=true
             }
             if (flag){

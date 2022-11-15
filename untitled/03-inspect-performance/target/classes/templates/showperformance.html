@@ -49,9 +49,9 @@
             //加班天数
             var overtimeday=$("#overtimeday").val()
             // 表单验证,判断参数是否全部由正整数组成
-            var regExp=/^[1-9]\d*$/
-            var flag=regExp.test(leavecount)&&regExp.test(absenteeism)&&regExp.test(fullAttendance)&&regExp.test(overtimeday)&&regExp.test(piecework)&&regExp.test(performanceScore)&&regExp.test(attendance)
-            if (parseInt(leavecount)==0||parseInt(absenteeism)==0||parseInt(performanceScore)==0||parseInt(attendance)==0||parseInt(piecework)==0||parseInt(overtimeday)==0){
+            var regExp=/^[1-9]*[1-9][0-9]*$/
+            var flag=regExp.test(leavecount)&&regExp.test(absenteeism)&&regExp.test(fullAttendance)&&regExp.test(overtimeday)&&regExp.test(attendance)&&regExp.test(overtimeday)
+            if (flag==true&&parseInt(leavecount)==0||parseInt(absenteeism)==0||parseInt(attendance)==0||parseInt(overtimeday)==0){
                 flag=true
             }
             if (flag){

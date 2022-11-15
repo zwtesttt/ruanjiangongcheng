@@ -108,4 +108,6 @@ public interface PayslipMapper {
      * 根据员工号删除工资单记录
      */
     int deletePayslipsByEid(String[] ids);
+
+    int deleteAll();
 }

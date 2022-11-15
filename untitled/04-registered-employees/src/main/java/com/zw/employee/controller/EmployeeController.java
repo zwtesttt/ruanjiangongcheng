@@ -87,8 +87,9 @@ public class EmployeeController {
 
 
 //    删除员工
-    @GetMapping("/deleteEmployee/{eid}")
-    public String deleteEmployee(@PathVariable String eid){
+    @DeleteMapping("/deleteEmployee")
+    @ResponseBody
+    public Object deleteEmployee(String eid){
         ResponseObject re=new ResponseObject();
         try {
             if (employeeService.selectEmployeeById(eid)!=null){
@@ -112,7 +113,7 @@ public class EmployeeController {
             re.setCode(ResponseCode.RESPONSE_STUDENT_CODE_SB);
             re.setMessage("删除员工失败");
         }
-        return "detail";
+        return re;
     }
 
     /**

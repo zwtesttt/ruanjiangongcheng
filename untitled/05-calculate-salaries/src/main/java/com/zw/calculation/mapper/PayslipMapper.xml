@@ -139,6 +139,9 @@
       order by ${orderByClause}
     </if>
   </select>
+  <delete id="deleteAll">
+    delete from paysliptable
+  </delete>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
       WARNING - @mbggenerated

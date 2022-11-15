@@ -24,19 +24,20 @@
         $(function() {
             var jobsale=queryJ() //查询岗位工资
             var wagesale=queryWage() //查询工资标准
-            var lia=[]
+            // var lia=[]
             queryE()
 
             //导出工资按钮单击事件
             $("#execPli").click(function (){
                 var checkeds=$("#bodyP2 input[type='checkbox']:checked")
+                // var elist=[]
+
                 if(checkeds.length==0){
                     alert("请选择要导出的工资条")
                     return;
                 }else {
-                    insertP(lia)//添加记录
                     excertP()//导出excle文件
-
+                    $("#bodyP2 input[type='checkbox']:checked").prop('checked',false)
                 }
             })
 
@@ -45,7 +46,7 @@
                 var checkeds=$("#bodyP input[type='checkbox']:checked")
                 var list=new Array()
                 var li=[]
-
+                // lia=[]
 
                 $.each(checkeds,function (){
                     list.push(this.value)
@@ -66,71 +67,120 @@
                             $("#jisuanTable").append("<thead><td>选择</td><td>姓名</td><td>岗位</td><td>基本工资</td><td>生活津贴</td><td>绩效/计件工资</td><td>加班工资</td><td>岗位工资</td><td>实发工资</td></thead>")
                             $("#jisuanTable").append("<tbody id=\"bodyP2\"></tbody>")
                             var activityhtml=""
+                            var stu=0 //记录无具体表现员工的个数
+                            var neid=[] //存放无具体表现员工的工号
+
                             $.each(resp,function (i,o){
                                 var perm=queryPerm(o.eid) //查询员工具体表现
-                                //基本工资
-                                var basicsalary=parseInt(wagesale.data.basicsalary)/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
-                                //生活津贴
-                                var allowance=parseInt(wagesale.data.allowance)/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
-                                //岗位工资
-                                var jobsalary
-                                if(o.position=='headofdepartment'){
-                                    jobsalary=(parseInt(jobsale.data.headofdepartment)+(parseInt(o.performanceLevel)*300))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
-                                }else if(o.position=='director'){
-                                    jobsalary=(parseInt(jobsale.data.director)+(parseInt(o.performanceLevel)*500))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
-                                }else if(o.position=='leader'){
-                                    jobsalary=(parseInt(jobsale.data.leader)+(parseInt(o.performanceLevel)*150))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
-                                }else if(o.position=='employee'){
-                                    jobsalary=(parseInt(jobsale.data.employee)+(parseInt(o.performanceLevel)*100))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                //判断选中员工是否有具体表现情况
+                                if(perm==""){
+                                    stu++
+                                    neid.push(o.eid)
                                 }
-
-                                //加班工资
-                                var overtimesalary=parseInt(wagesale.data.basicsalary)/parseInt(perm.fullAttendance)*parseInt(perm.overtimeday)
-                                //绩效|计件工资
-                                var performance
-                                //计件工资
-                                //var piecesalary
-                                if (perm.piecework==null){
-                                    if (parseInt(o.performanceScore)>90){
-                                        performance=parseInt(wagesale.data.performancesalary)*1
-                                    }else{
-                                        performance=parseInt(wagesale.data.performancesalary)*(parseInt(perm.performanceScore)*0.01)
-                                    }
-                                }else{
-                                    performance=parseInt(perm.piecework)*0.5
-
-                                }
-
-                                //应发工资
-                                var sale=basicsalary+allowance+jobsalary+overtimesalary+performance
-                                // 渲染表格
-                                activityhtml+="<tr>"
-                                activityhtml+="<td><input class='checkable' type=\"checkbox\" value=\""+o.eid+"\"/></td>"
-                                activityhtml+="<td>"+o.ename+"</td>"
-                                activityhtml+="<td>"+o.position+"</td>"
-                                activityhtml+="<td>"+parseInt(basicsalary)+"</td>"
-                                activityhtml+="<td>"+parseInt(allowance)+"</td>"
-                                activityhtml+="<td>"+parseInt(performance)+"</td>"
-                                activityhtml+="<td>"+parseInt(overtimesalary)+"</td>"
-                                activityhtml+="<td>"+parseInt(jobsalary)+"</td>"
-                                activityhtml+="<td>"+parseInt(sale)+"</td>"
-                                activityhtml+="</tr>"
-
-                                 //包装成对象
-                                 var obj={eid:o.eid,ename:o.ename,basicsalary:parseInt(basicsalary),allowance:parseInt(allowance),performance:parseInt(performance),overtimesalary:parseInt(overtimesalary),jobsalary:parseInt(jobsalary),salary:sale}
-                                 li.push(obj)
-
                             })
-                            lia=li
+                            if(stu==0){
+                                $.each(resp,function (i,o){
+                                    var perm=queryPerm(o.eid) //查询员工具体表现
+                                    //基本工资
+                                    var basicsalary=parseInt(wagesale.data.basicsalary)/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    //生活津贴
+                                    var allowance=parseInt(wagesale.data.allowance)/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    //岗位工资
+                                    var jobsalary
+                                    if(o.position=='headofdepartment'){
+                                        jobsalary=(parseInt(jobsale.data.headofdepartment)+(parseInt(o.performanceLevel)*300))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    }else if(o.position=='director'){
+                                        jobsalary=(parseInt(jobsale.data.director)+(parseInt(o.performanceLevel)*500))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    }else if(o.position=='leader1'){
+                                        jobsalary=(parseInt(jobsale.data.leader)+(parseInt(o.performanceLevel)*150))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    }else if(o.position=='employee'){
+                                        jobsalary=(parseInt(jobsale.data.employee)+(parseInt(o.performanceLevel)*100))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    }else if(o.position=='leader2'){
+                                        jobsalary=(parseInt(jobsale.data.leader)+(parseInt(o.performanceLevel)*150))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    }else if(o.position=='leader3'){
+                                        jobsalary=(parseInt(jobsale.data.leader)+(parseInt(o.performanceLevel)*150))/parseInt(perm.fullAttendance)*parseInt(perm.attendance)
+                                    }
+
+                                    //加班工资
+                                    var overtimesalary=parseInt(wagesale.data.basicsalary)/parseInt(perm.fullAttendance)*parseInt(perm.overtimeday)
+                                    //绩效|计件工资
+                                    var performance
+                                    //计件工资
+                                    //var piecesalary
+                                    if (perm.piecework==null){
+                                        if (parseInt(o.performanceScore)>90){
+                                            performance=parseInt(wagesale.data.performancesalary)*1
+                                        }else{
+                                            performance=parseInt(wagesale.data.performancesalary)*(parseInt(perm.performanceScore)*0.01)
+                                        }
+                                    }else{
+                                        performance=parseInt(perm.piecework)*0.5
+                                    }
+
+                                    //应发工资
+                                    var sale=basicsalary+allowance+jobsalary+overtimesalary+performance
+                                    // 渲染表格
+                                    activityhtml+="<tr>"
+                                    activityhtml+="<td><input type=\"checkbox\" value=\""+o.eid+"\"/></td>"
+                                    activityhtml+="<td>"+o.ename+"</td>"
+                                    activityhtml+="<td>"+conveGang(o.position)+"</td>"
+                                    activityhtml+="<td>"+parseInt(basicsalary)+"</td>"
+                                    activityhtml+="<td>"+parseInt(allowance)+"</td>"
+                                    activityhtml+="<td>"+parseInt(performance)+"</td>"
+                                    activityhtml+="<td>"+parseInt(overtimesalary)+"</td>"
+                                    activityhtml+="<td>"+parseInt(jobsalary)+"</td>"
+                                    activityhtml+="<td>"+parseInt(sale)+"</td>"
+                                    activityhtml+="</tr>"
+
+                                    //包装成对象
+                                    var obj={eid:o.eid,ename:o.ename,basicsalary:parseInt(basicsalary),allowance:parseInt(allowance),performance:parseInt(performance),overtimesalary:parseInt(overtimesalary),jobsalary:parseInt(jobsalary),salary:sale}
+                                    li.push(obj)
+
+                                })
+                                }else{
+                                    var names=""
+                                    $.each(neid,function (i,o){
+                                        $.ajax({
+                                            async:false,
+                                            url: "getEmployee",
+                                            type:"get",
+                                            data:{
+                                                eid:o
+                                            },
+                                            dataType:"json",
+                                            success:function (resp){
+                                                names+=resp.ename+","
+                                            }
+                                        })
+                                    })
+                                    names=names.substr(0,names.length-1)
+
+                                    alert("选中的员工中:"+names+"没有具体表现情况，无法计算工资")
+                                    $("#bodyP input[type='checkbox']:checked").prop('checked',false)
+                                    return
+                                }
+                            insertP(li)//添加记录
                             $("#bodyP2").html(activityhtml)
-
-
+                            $("#bodyP input[type='checkbox']:checked").prop('checked',false)
                         }
                     })
                 }
 
             })
         })
+        //判断岗位
+        function conveGang(position){
+            var npo=""
+            switch (position) {
+                case "headofdepartment": npo="部门主管";break;
+                case "director": npo="厂长";break;
+                case "leader1": npo="车间主任";break;
+                case "leader2": npo="工段长";break;
+                case "leader3": npo="班组长";break;
+                case "employee": npo="普通员工";break;
+            }
+            return npo;
+        }
 
         /**
          * 删除工资单记录
@@ -175,8 +225,8 @@
                 success:function (resp){
                     if (resp.code!=1){
                         alert(resp.message)
+                        return
                     }
-
                 }
             })
         }
@@ -188,12 +238,13 @@
             //获取被选中的checkbox的value
             var checkeds=$("#bodyP2 input[type='checkbox']:checked")
             var ids=""
-            $.each(checkeds,function (){
+            $.each(checkeds,function (i,o){
                 ids+="ids="+this.value+"&"
             })
             ids=ids.substr(0,ids.length-1)
             window.location.href="downloadPayslip?"+ids
         }
+
         // 加载员工列表
         function queryE(){
             $.ajax(
@@ -211,7 +262,7 @@
                             activityhtml+="<td><input type=\"checkbox\" value=\""+p.eid+"\"/></td>"
                             activityhtml+="<td>"+(i+1)+"</td>"
                             activityhtml+="<td>"+p.ename+"</td>"
-                            activityhtml+="<td>"+p.position+"</td>"
+                            activityhtml+="<td>"+conveGang(p.position)+"</td>"
                             activityhtml+="<td>"+p.performanceLevel+"</td>"
                             activityhtml+="<td>"+p.contact+"</td>"
                             activityhtml+="</tr>"

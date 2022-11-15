@@ -116,6 +116,8 @@ public class PayslipController {
     @PostMapping("/addPayslip")
     @ResponseBody
     public Object addPayslip(@RequestBody Payslip[] payslip){
+        //重新计算后将表中记录清空
+        payslipService.deleteAll();
         ResponseObject re=new ResponseObject();
         try{
             if (payslip!=null){
@@ -216,7 +218,7 @@ public class PayslipController {
             wb.write(out);//将wb文件输出流的内容直接写入到响应输出流
             out.flush();
             wb.close();
-            payslipService.deletePayslip(ids);
+
         }
     }
     /**
@@ -245,7 +247,6 @@ public class PayslipController {
             re.setCode(ResponseCode.RESPONSE_STUDENT_CODE_SB);
             re.setMessage("删除失败");
         }
-
         return re;
     }
 

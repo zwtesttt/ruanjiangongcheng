@@ -5,14 +5,18 @@ spring:
     name: 06-gateway
   cloud:
     nacos:
-      server-addr:  23.224.102.17:8848 #往该地址注册
+#      server-addr:  23.224.102.17:8848 #往该地址注册
       username: nacos #登录nacos的用户名
       password: nacos  #登录nacos的密码
       discovery:
         heart-beat-timeout: 10000
+      server-addr: 192.168.3.24:8848
     gateway:
       enabled: true #只要加了依赖默认开启
       discovery:
         locator:
           enabled: true #开启动态路由
           lower-case-service-id: true #开启服务名称小写
+#  redis:
+#    host: 192.168.3.12
+#    port: 6379

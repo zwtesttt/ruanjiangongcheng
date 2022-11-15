@@ -10,4 +10,6 @@ public interface PayslipService {
     Payslip[] queryPayslips(String[] ids);
 
     int deletePayslip(String[] ids);
+
+    int deleteAll();
 }

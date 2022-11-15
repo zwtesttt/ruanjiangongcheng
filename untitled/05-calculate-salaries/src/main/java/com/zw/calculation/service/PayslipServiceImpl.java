@@ -37,5 +37,14 @@ public class PayslipServiceImpl implements PayslipService {
         return payslipMapper.deletePayslipsByEid(ids);
     }
 
+    /**
+     * 删除表中所有记录
+     * @return
+     */
+    @Override
+    public int deleteAll() {
+        return payslipMapper.deleteAll();
+    }
+
 
 }

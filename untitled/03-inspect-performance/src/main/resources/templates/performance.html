@@ -35,11 +35,24 @@
                         $("#detailTable").empty()
                         $("#detailTable").append("<thead><td>序号</td><td>姓名</td><td>岗位</td><td>绩效等级</td><td>联系方式</td><td>操作</td></thead>")
                         $.each(resp,function (i,p){
-                            $("#detailTable").append("<tr><td>"+(i+1)+"</td><td>"+p.ename+"</td><td>"+p.position+"</td><td>"+p.performanceLevel+"</td><td>"+p.contact+"</td><td><a href='showperformance?eid="+p.eid+"&name="+p.ename+"'>员工表现情况</a></td></tr>")
+                            $("#detailTable").append("<tr><td>"+(i+1)+"</td><td>"+p.ename+"</td><td>"+conveGang(p.position)+"</td><td>"+p.performanceLevel+"</td><td>"+p.contact+"</td><td><a href='showperformance?eid="+p.eid+"&name="+p.ename+"'>员工表现情况</a></td></tr>")
                         })
                     }
                 }
             )
+        }
+        //判断岗位
+        function conveGang(position){
+            var npo=""
+            switch (position) {
+                case "headofdepartment": npo="部门主管";break;
+                case "director": npo="厂长";break;
+                case "leader1": npo="车间主任";break;
+                case "leader2": npo="工段长";break;
+                case "leader3": npo="班组长";break;
+                case "employee": npo="普通员工";break;
+            }
+            return npo;
         }
     </script>
 </head>
